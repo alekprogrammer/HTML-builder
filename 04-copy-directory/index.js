@@ -25,5 +25,9 @@ fs.exists(path.join(__dirname, 'files-copy'), async function(isExist) {
             }
             console.log('Directory created successfully!');
         });
+        const files = await readdir(path.join(__dirname, 'files'));
+        for (let i = 0; i < files.length; i++) {
+            await copyFile(path.join(__dirname, 'files', files[i]), path.join(__dirname, 'files-copy', files[i]));
+        }
     }
 });

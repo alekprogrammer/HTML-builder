@@ -13,7 +13,6 @@ fs.writeFile(
 
 fs.readdir(path.join(__dirname, 'styles'), (err, files) => {
     if (err) return console.log(err);
-    console.log(files)
     files.forEach(file => {
 
         if (path.parse(path.join(__dirname, 'styles', file)).ext === ".css") {
