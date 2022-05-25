@@ -7,6 +7,8 @@ const fsPromises = require("fs/promises");
 let contentOfTemplate = "";
 let readStream = fs.createReadStream(path.join(__dirname, 'template.html'), "utf-8");
 
+
+
 fs.mkdir(path.join(__dirname, 'project-dist'), { recursive: true }, (err) => {
     if (err) {
         return console.error(err);
@@ -15,15 +17,29 @@ fs.mkdir(path.join(__dirname, 'project-dist'), { recursive: true }, (err) => {
 });
 
 readStream.on('data', data => contentOfTemplate += data);
-readStream.on('close', data => {
-    contentOfTemplate = contentOfTemplate.replace(/{{(\w+)}}/g, `<$1></$1>`)
-    fs.writeFile(
-        path.join(__dirname, 'project-dist', 'index.html'),
-        contentOfTemplate,
-        (err) => {
-            if (err) throw err;
-        }
-    );
+readStream.on('close', () => {
+    let contentOfArticle = '';
+    let readStreamArticle = fs.createReadStream(path.join(__dirname, 'components', 'articles.html'), "utf-8");
+    readStreamArticle.on('data', data => contentOfArticle += data);
+    readStreamArticle.on('close', () => contentOfTemplate = contentOfTemplate.replace("{{articles}}", contentOfArticle));
+    let contentOfHeader = '';
+    let readStreamHeader = fs.createReadStream(path.join(__dirname, 'components', 'header.html'), "utf-8");
+    readStreamHeader.on('data', data => contentOfHeader += data);
+    readStreamHeader.on('close', () => contentOfTemplate = contentOfTemplate.replace("{{header}}", contentOfHeader));
+    let contentOfFooter = '';
+    let readStreamFooter = fs.createReadStream(path.join(__dirname, 'components', 'footer.html'), "utf-8");
+    readStreamFooter.on('data', data => contentOfFooter += data);
+    readStreamFooter.on('close', () => {
+        contentOfTemplate = contentOfTemplate.replace("{{footer}}", contentOfFooter)
+        fs.writeFile(
+            path.join(__dirname, 'project-dist', 'index.html'),
+            contentOfTemplate,
+            (err) => {
+                if (err) throw err;
+            }
+        );
+    });
+    // contentOfTemplate = contentOfTemplate.replace(/{{(\w+)}}/g, `<$1></$1>`)
 });
 
 fs.readdir(path.join(__dirname, 'styles'), (err, files) => {
